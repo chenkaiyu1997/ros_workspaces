@@ -1,0 +1,2 @@
+mapping
+-DCATKIN_DEVEL_PREFIX=/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab8/devel -DCMAKE_INSTALL_PREFIX=/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab8/install -G Unix Makefiles

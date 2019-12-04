@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab4/devel
+
+Name: turtlebot_control
+Description: Description of turtlebot_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab4/devel/lib 
+Requires: 

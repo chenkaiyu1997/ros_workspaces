@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_79da3/fast"
+/usr/bin/make -f CMakeFiles/cmTC_79da3.dir/build.make CMakeFiles/cmTC_79da3.dir/build
+make[1]: Entering directory '/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_79da3.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_79da3.dir/CheckSymbolExists.c.o   -c /home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_79da3
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_79da3.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_79da3.dir/CheckSymbolExists.c.o  -o cmTC_79da3 -rdynamic 
+CMakeFiles/cmTC_79da3.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_79da3.dir/build.make:97: recipe for target 'cmTC_79da3' failed
+make[1]: *** [cmTC_79da3] Error 1
+make[1]: Leaving directory '/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_79da3/fast' failed
+make: *** [cmTC_79da3/fast] Error 2
+
+File /home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_1075c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_1075c.dir/build.make CMakeFiles/cmTC_1075c.dir/build
+make[1]: Entering directory '/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1075c.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_1075c.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_1075c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1075c.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_1075c.dir/CheckFunctionExists.c.o  -o cmTC_1075c -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_1075c.dir/build.make:97: recipe for target 'cmTC_1075c' failed
+make[1]: *** [cmTC_1075c] Error 1
+make[1]: Leaving directory '/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_1075c/fast' failed
+make: *** [cmTC_1075c/fast] Error 2
+
+

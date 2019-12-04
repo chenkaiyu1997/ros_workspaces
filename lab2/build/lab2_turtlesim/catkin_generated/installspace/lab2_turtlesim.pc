@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/install
+
+Name: lab2_turtlesim
+Description: Description of lab2_turtlesim
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/cc/ee106a/fa19/class/ee106a-agi/ros_workspaces/lab2/install/lib 
+Requires: 

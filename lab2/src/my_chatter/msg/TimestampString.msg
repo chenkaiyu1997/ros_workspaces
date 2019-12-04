@@ -1,0 +1,2 @@
+string user_enter_message
+float64 time_send
