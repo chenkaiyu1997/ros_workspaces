@@ -17,19 +17,27 @@ from planning.msg import ChouChou
 
 queue = []
 prev_msg = ""
+sec_pre = ""
 
 def get_points(message):
 	"""
 	We will add the point we received to queue
 	"""
 	global prev_msg
+	global sec_pre
 	
 	#print("9999",message.status_type)
 	if prev_msg != message and message.status_type != "dummy":
 		queue.append(message)
+		if message.status_type == "ending":
+			sec_pre = prev_msg
 		prev_msg = message
+		
 
 def main():
+	global prev_msg
+	global sec_pre
+
 	plandraw = PathPlanner('right_arm')
 
 	plandraw.start_position()
@@ -82,13 +90,15 @@ def main():
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
 							print("start")
+							waypoints = []
+
 							goal_1 = PoseStamped()
 							goal_1.header.frame_id = "base"
 
 							#x, y, and z position
 							goal_1.pose.position.x = x
 							goal_1.pose.position.y = y
-							goal_1.pose.position.z = z
+							goal_1.pose.position.z = z + 0.12
 
 							#Orientation as a quaternion
 							goal_1.pose.orientation.x = 0.0
@@ -98,7 +108,11 @@ def main():
 
 
 
-							waypoints = []
+							
+							waypoints.append(copy.deepcopy(goal_1.pose))
+
+							goal_1.pose.position.z -= 0.12
+
 							waypoints.append(copy.deepcopy(goal_1.pose))
 
 							plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
@@ -134,14 +148,16 @@ def main():
 							else:
 								queue.pop(0)
 						elif cur.status_type == "ending":
-							print("prev_msg      ",prev_msg)
+							print("ppppppp      ",sec_pre)
+							# mmm = plandraw.get_cur_pos().pose
+							
 							goal_1 = PoseStamped()
 							goal_1.header.frame_id = "base"
 
 							#x, y, and z position
-							goal_1.pose.position.x = prev_msg.position_x
-							goal_1.pose.position.y = prev_msg.position_y 
-							goal_1.pose.position.z = prev_msg.position_z - 0.078
+							goal_1.pose.position.x = sec_pre.position_x
+							goal_1.pose.position.y = sec_pre.position_y 
+							goal_1.pose.position.z = sec_pre.position_z + 0.12
 
 							#Orientation as a quaternion
 							goal_1.pose.orientation.x = 0.0
@@ -149,9 +165,13 @@ def main():
 							goal_1.pose.orientation.z = 0.0
 							goal_1.pose.orientation.w = 0.0
 
-							#plan = plandraw.plan_to_pose(goal_1, [orien_const])
-							# if not plandraw.execute_plan(plan):
-							# 	raise Exception("Execution failed")
+							waypoints = []
+							waypoints.append(copy.deepcopy(goal_1.pose))
+
+							plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
+
+							if not plandraw.execute_plan(plan):
+								raise Exception("Execution failed")
 							print("ti bi")
 							queue.pop(0)
 				#raw_input("Press <Enter> to move next!!!")

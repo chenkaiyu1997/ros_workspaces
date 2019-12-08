@@ -100,10 +100,11 @@ if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
 	for area in points:
 		first = True
+		z = -0.015
 		for (start, end) in points[area]:
 			if first:  # the start point of the whole area
 				# z = -0.078
-				z = -0.015
+				
 				queue.append(create_ChouChou(start[0], start[1], z, 0, "starting"))
 				queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
 

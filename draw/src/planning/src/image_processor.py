@@ -311,7 +311,7 @@ class imgProcess:
             for j in range(n):
                 if (i, j) not in visited and img[i, j] == 1:
                     DFS(i, j, count)  # assign white area number
-                    count += 10
+                    count += 1
         return count
 
     @staticmethod
@@ -363,6 +363,7 @@ class imgProcess:
                 endWorld = cali.transform_to_3d(np.array([end[0], end[1]]))
                 temp.append((startWorld, endWorld))  # (np.array(2,), np.array(2))
             worldPoints[area] = temp
+        # worldPoints[1] = [(cali.transform_to_3d(np.array([0, 499])),cali.transform_to_3d(np.array([0, 499])))]
         return worldPoints
 
     @ staticmethod

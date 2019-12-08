@@ -98,9 +98,7 @@ class PathPlanner(object):
 		# self._group.set_path_constraints(constraints)
 
 		# plan = self._group.plan()
-		print("???????????????????????????????")
 		plan, fraction = self._group.compute_cartesian_path(waypoints,0.01,0.0)
-		print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 		return plan
 

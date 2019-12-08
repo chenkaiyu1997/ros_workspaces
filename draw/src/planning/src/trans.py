@@ -54,31 +54,11 @@ class calibration():
         print(clicked)
 
         # objpoints = np.zeros((4,1,3))
-        objpoints = np.float32([[0.436,-0.208,0],
-                            [0.451,0.094,0],
-                            [0.482,0.331,0],
-                            [0.703,0.351,0],
-                            [0.787,0.327,0],
-                            [0.880,-0.063,0],
-                            [0.482,0.331,0],
-                            [0.844,-0.246,0],
-                            [0.660,-0.228,0]])
-
-        imgpoints = np.float32([[clicked[0][0],clicked[0][1]],
-                            [clicked[1][0],clicked[1][1]],
-                            [clicked[2][0],clicked[2][1]],
-                            [clicked[3][0],clicked[3][1]],
-                            [clicked[4][0],clicked[4][1]],
-                            [clicked[5][0],clicked[5][1]],
-                            [clicked[6][0],clicked[6][1]],
-                            [clicked[7][0],clicked[7][1]],])
-
+        
         src = np.float32([clicked[0],
-                  clicked[1],
                   clicked[2],
-                  clicked[3]])
-
-        self.get_transform_matrix(objpoints, imgpoints)
+                  clicked[4],
+                  clicked[6]])
 
 
         dst = np.float32([(0, 0),
@@ -87,6 +67,48 @@ class calibration():
                           (0, self.table_size[0])])
         transformed = self.warp(src, dst, self.img)
         cv2.imwrite('result.jpg', transformed)
+
+        std_clicked = []
+        for click in clicked:
+            cur_click = self.M.dot([[click[0]], [click[1]], [1]])
+            cur_click = (cur_click / cur_click[-1])[:2]
+            print('lolllll', cur_click, cur_click.shape, cur_click[0,0], cur_click[0][0])
+            cur_y = cur_click[0][0]
+            cur_x = cur_click[1][0]
+            if cur_x > 344:
+                cur_x = 344
+            if cur_x < 0:
+                cur_x = 0
+            if cur_y > 499:
+                cur_y = 499
+            if cur_y < 0:
+                cur_y = 0
+            std_clicked.append([cur_y,cur_x])
+
+        objpoints = np.float32([[0.214,-0.361,0],
+                            [0.222,-0.05,0],
+                            [0.228,0.22,0],
+                            [0.48,0.179,0],
+                            [0.63,0.205,0],
+                            [0.62,-0.02,0],
+                            [0.616,-0.331,0],
+                            [0.392,-0.327,0]])
+
+        imgpoints = np.float32([[std_clicked[0][0],std_clicked[0][1]],
+                            [std_clicked[1][0],std_clicked[1][1]],
+                            [std_clicked[2][0],std_clicked[2][1]],
+                            [std_clicked[3][0],std_clicked[3][1]],
+                            [std_clicked[4][0],std_clicked[4][1]],
+                            [std_clicked[5][0],std_clicked[5][1]],
+                            [std_clicked[6][0],std_clicked[6][1]],
+                            [std_clicked[7][0],std_clicked[7][1]],])
+
+        print('std clicked:',std_clicked)
+
+        self.get_transform_matrix(objpoints, imgpoints)
+
+
+
         return transformed
 
     def warp(self, src, dst, img):
@@ -100,10 +122,11 @@ class calibration():
     def transform_to_3d(self, pt):
         # swap x, y
         pt[0], pt[1] = pt[1], pt[0]
-        pt = np.concatenate((pt.T.reshape((2,1)), np.array([[1]])), axis=0)
-        inv_M = np.linalg.inv(self.M)
-        gen_pt = inv_M.dot(pt)
-        gen_pt = (gen_pt / gen_pt[-1])[:2]
+        # pt = np.concatenate((pt.T.reshape((2,1)), np.array([[1]])), axis=0)
+        # inv_M = np.linalg.inv(self.M)
+        # gen_pt = inv_M.dot(pt)
+        gen_pt = pt
+        # gen_pt = (gen_pt / gen_pt[-1])[:2]
 
         A = np.array([[self.transform_matrix[0][0], self.transform_matrix[0][1], -gen_pt[0]],[self.transform_matrix[1][0], self.transform_matrix[1][1], -gen_pt[1]], [self.transform_matrix[2][0], self.transform_matrix[2][1], -1]])
         
@@ -127,4 +150,4 @@ if __name__ == '__main__':
 
     cali = calibration(im, (345, 500))
     cali.calibrate()
-    print('get point:',cali.transform_to_3d(np.array([0,0])))
+    print('get point:',cali.transform_to_3d(np.array([344, 499])))
