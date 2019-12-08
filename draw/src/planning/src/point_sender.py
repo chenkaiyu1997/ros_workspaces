@@ -13,6 +13,7 @@ from planning.msg import ChouChou
 #the std_msgs package.
 from std_msgs.msg import String
 import numpy as np
+from image_processor import imgProcess
 
 def create_ChouChou(x,y,z,g,s):
 	return ChouChou(position_x=x,position_y=y,position_z=z,edge_grad=g,status_type=s)
@@ -25,23 +26,24 @@ queue = [create_ChouChou(13333,4,0.2,0.4,"dummy"),
 
 
 center = (0.670, -0.149)
-radius = 0.3
+radius = 0.1
 
-rospy.sleep(5)
-count = 0
-for i in np.linspace(center[0] - radius, center[0] + radius, 20):
-	count += 1
-	t = np.abs(i - center[0])
-	x = np.sqrt(radius ** 2 - t ** 2)
-	if np.isnan(x):
-			x = 0
+# rospy.sleep(2)
+# count = 0
+# for i in np.linspace(center[0] - radius, center[0] + radius, 20):
+# 	count += 1
+# 	t = np.abs(i - center[0])
+# 	x = np.sqrt(radius ** 2 - t ** 2)
+# 	if np.isnan(x):
+# 			x = 0
 
-	if i == center[0] - radius:
-		queue.append(create_ChouChou(i, center[1]-x, -0.078, 0, "starting"))
-	else:
-		queue.append(create_ChouChou(i, center[1]-x, -0.078, 0, "next_point"))
+# 	if i == center[0] - radius:
+# 		queue.append(create_ChouChou(i, center[1]-x, -0.078, 0, "starting"))
+# 	else:
+# 		queue.append(create_ChouChou(i, center[1]+x, -0.078, 0, "next_point"))
+# 		queue.append(create_ChouChou(i, center[1]-x, -0.078, 0, "next_point"))
 
-queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
+# queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
 
 #Define the method which contains the main functionality of the node.
 def talker():
@@ -79,14 +81,15 @@ def talker():
 		# user_enter = raw_input("Please enter a line of text and press <Enter>: ")
 		# send_time = rospy.get_time()
 		# pub_string = user_enter + " " + str(rospy.get_time())
-		while queue:
+		while len(queue)>0:
 			cur = queue.pop(0)
+			# print("cur_point !!!!!!!!!!!!!!!!!!!!             ", cur)
 			
 			pub_content = cur
 
 			# Publish our string to the 'chatter_talk' topic
 			pub.publish(pub_content)
-			print("currrrrrr  ", pub_content, count)
+			# print("currrrrrr  ", len(queue))
 			
 			# Use our rate object to sleep until it is time to publish again
 			r.sleep()
@@ -94,6 +97,24 @@ def talker():
 # This is Python's sytax for a main() method, which is run by default
 # when exectued in the shell
 if __name__ == '__main__':
+	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
+	for area in points:
+		first = True
+		for (start, end) in points[area]:
+			if first:  # the start point of the whole area
+				# z = -0.078
+				z = -0.015
+				queue.append(create_ChouChou(start[0], start[1], z, 0, "starting"))
+				queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
+
+				first = False
+			else:
+				queue.append(create_ChouChou(start[0], start[1], z, 0, "next_point"))
+				queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
+		queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
+	print("end queue push", len(queue))
+
+
 	# Check if the node has received a signal to shut down
 	# If not, run the talker method
 	try:

@@ -75,7 +75,10 @@ class PathPlanner(object):
 		self._group = None
 		rospy.loginfo("Stopping Path Planner")
 
-	def plan_to_pose(self, target, orientation_constraints):
+	def get_cur_pos(self):
+		return self._group.get_current_pose()
+
+	def plan_to_pose(self, target, orientation_constraints,waypoints):
 		"""
 		Generates a plan given an end effector pose subject to orientation constraints
 
@@ -87,14 +90,17 @@ class PathPlanner(object):
 		path: A moveit_msgs/RobotTrajectory path
 		"""
 
-		self._group.set_pose_target(target)
-		self._group.set_start_state_to_current_state()
+		# self._group.set_pose_target(target)
+		# self._group.set_start_state_to_current_state()
 
-		constraints = Constraints()
-		constraints.orientation_constraints = orientation_constraints
-		self._group.set_path_constraints(constraints)
+		# constraints = Constraints()
+		# constraints.orientation_constraints = orientation_constraints
+		# self._group.set_path_constraints(constraints)
 
-		plan = self._group.plan()
+		# plan = self._group.plan()
+		print("???????????????????????????????")
+		plan, fraction = self._group.compute_cartesian_path(waypoints,0.01,0.0)
+		print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 		return plan
 
@@ -164,6 +170,22 @@ class PathPlanner(object):
 		joint_command['right_j4'] = -0.2
 		joint_command['right_j5'] = 2.24
 		joint_command['right_j6'] = 1.80
+
+		# joint_command['right_j0'] = -0.11
+		# joint_command['right_j1'] = 0.58
+		# joint_command['right_j2'] = -1.83
+		# joint_command['right_j3'] = 1.50
+		# joint_command['right_j4'] = 1.64
+		# joint_command['right_j5'] = 2.94
+		# joint_command['right_j6'] = -3.18
+
+		# joint_command['right_j0'] = -0.013
+		# joint_command['right_j1'] = 0.88
+		# joint_command['right_j2'] = -0.045
+		# joint_command['right_j3'] = -2.60
+		# joint_command['right_j4'] = -2.98
+		# joint_command['right_j5'] = -2.98
+		# joint_command['right_j6'] = -4.64
 
 		try:
 			print("Initializing starting position....")
