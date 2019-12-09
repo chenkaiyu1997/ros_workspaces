@@ -85,7 +85,7 @@ class imgProcess:
         grayscale : boolean
             true if image is in grayscale, false o/w
         """
-
+        return
         if not grayscale:
             plt.imshow(img_name)
             plt.title(title)
@@ -328,41 +328,92 @@ class imgProcess:
         result : dict
             each element is a list of (start, end) tuples for a specific area number; each list is sorted
         """
-        result = {}  # {area number: [(starts, ends)]}
-        (m, n) = img.shape
-        for i in range(0, m, 5):  # skip 5 rows
-            start = 0  # column index of start points
-            prev = None
-            for j in range(n):
-                if img[i][j] != prev or j == n-1:  # new start or end of the row
-                    end = j
-                    if img[i][j] != prev:
-                        end = j-1
-                    # TODO: find a way to not hardcode the outerspace number here
-                    if prev != None and prev != 0 and prev != 255:  # 0 edge; 255 outer space
-                        if end - start < 5:  # less than 5 pixel, then ignore
-                            prev = img[i][j]  # update prev and start
-                            start = j
-                            continue
-                        if prev not in result:  # new area
-                            result[prev] = [((i, start), (i, end))]
-                        else:
-                            result[prev].append(((i, start), (i, end)))
-                    prev = img[i][j]  # update prev and start
-                    start = j
+        # result = {}  # {area number: [(starts, ends)]}
+
+
+        (n, m) = img.shape
+
+        # result = {
+        #     1: [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]
+        # }        
+        result = {
+            1: [[(50, 50), (60, 50), (60, 60), (50, 60), (50, 50)]]
+        }
+
+        center = [100, 100]
+        radius = 100
+
+        circle_stroke = []
+        for x in np.linspace(0, np.pi * 4, num=30):
+            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        result[1].append(circle_stroke[:])
+
+
+
+        # for area_number in range(count)
+        # while True:
+        #     sti = -1
+        #     stj = -1
+        #     # find 0
+        #     for i in range(0, n):
+        #         for j in range(0, m):
+        #             if img[i][j] == 0:
+        #                 sti = i
+        #                 stj = j
+        #                 break
+        #         if sti != -1:
+        #             break
+
+        #     if sti == -1 and stj == -1:
+        #         break
+
+
+        #     fd = [(-1, 0), (-1, 1), (0, 1), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
+        #     current_d = 0
+        #     while True:
+        #         if 
+
+
+
+
+
+        # for i in range(0, m, 1):  # skip 5 rows
+        #     start = 0  # column index of start points
+        #     prev = None
+        #     for j in range(n):
+        #         if img[i][j] != prev or j == n-1:  # new start or end of the row
+        #             end = j
+        #             if img[i][j] != prev:
+        #                 end = j-1
+        #             # TODO: find a way to not hardcode the outerspace number here
+        #             if prev != None and prev != 0 and prev != 255:  # 0 edge; 255 outer space
+        #                 if end - start < 5:  # less than 5 pixel, then ignore
+        #                     prev = img[i][j]  # update prev and start
+        #                     start = j
+        #                     continue
+        #                 if prev not in result:  # new area
+        #                     result[prev] = [((i, start), (i, end))]
+        #                 else:
+        #                     result[prev].append(((i, start), (i, end)))
+        #             prev = img[i][j]  # update prev and start
+        #             start = j
         # print(result[254])
+
+
         return result
 
     @ staticmethod
     def pixel2World(cali, areaPoints):
         worldPoints = {}  # {area number: [(starts in world frame, ends in world frame)]}
         for area in areaPoints:
-            temp = []  # [(starts in world frame, ends in world frame)]
-            for (start, end) in areaPoints[area]:
-                startWorld = cali.transform_to_3d(np.array([start[0], start[1]]))
-                endWorld = cali.transform_to_3d(np.array([end[0], end[1]]))
-                temp.append((startWorld, endWorld))  # (np.array(2,), np.array(2))
-            worldPoints[area] = temp
+            worldPoints[area] = []
+            for stroke in areaPoints[area]:
+                temp = []  # [(starts in world frame, ends in world frame)]
+                for (x, y) in stroke:
+                    # startWorld = cali.transform_to_3d(np.array([start[0], start[1]]))
+                    p = cali.transform_to_3d(np.array([x, y]))
+                    temp.append(p)  # (np.array(2,), np.array(2))
+                worldPoints[area].append(temp[:])
         # worldPoints[1] = [(cali.transform_to_3d(np.array([0, 499])),cali.transform_to_3d(np.array([0, 499])))]
         return worldPoints
 

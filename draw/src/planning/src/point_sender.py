@@ -99,20 +99,17 @@ def talker():
 if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
 	for area in points:
-		first = True
-		z = -0.015
-		for (start, end) in points[area]:
-			if first:  # the start point of the whole area
-				# z = -0.078
-				
-				queue.append(create_ChouChou(start[0], start[1], z, 0, "starting"))
-				queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
-
-				first = False
-			else:
-				queue.append(create_ChouChou(start[0], start[1], z, 0, "next_point"))
-				queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
-		queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
+		for stroke in points[area]:
+			first = True
+			z = -0.015
+			for (x, y) in stroke:
+				if first:  # the start point of the whole area
+					queue.append(create_ChouChou(x, y, z, 0, "starting"))
+					first = False
+				else:
+					queue.append(create_ChouChou(x, y, z, 0, "next_point"))
+					
+			queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
 	print("end queue push", len(queue))
 
 
@@ -121,3 +118,30 @@ if __name__ == '__main__':
 	try:
 		talker()
 	except rospy.ROSInterruptException: pass
+
+
+
+	# points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
+	# for area in points:
+	# 	first = True
+	# 	z = -0.015
+	# 	for (start, end) in points[area]:
+	# 		if first:  # the start point of the whole area
+	# 			# z = -0.078
+				
+	# 			queue.append(create_ChouChou(start[0], start[1], z, 0, "starting"))
+	# 			queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
+
+	# 			first = False
+	# 		else:
+	# 			queue.append(create_ChouChou(start[0], start[1], z, 0, "next_point"))
+	# 			queue.append(create_ChouChou(end[0], end[1], z, 0, "next_point"))
+	# 	queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
+	# print("end queue push", len(queue))
+
+
+	# # Check if the node has received a signal to shut down
+	# # If not, run the talker method
+	# try:
+	# 	talker()
+	# except rospy.ROSInterruptException: pass

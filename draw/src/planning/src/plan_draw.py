@@ -79,6 +79,7 @@ def main():
 	orien_const.absolute_z_axis_tolerance = 0.1;
 	orien_const.weight = 1.0;
 
+	waypoints = []
 	while not rospy.is_shutdown():
 		#raw_input("~~~~~~~~~~~~!!!!!!!!!!!!")
 		while not rospy.is_shutdown():
@@ -90,7 +91,7 @@ def main():
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
 							print("start")
-							waypoints = []
+							# waypoints = []
 
 							goal_1 = PoseStamped()
 							goal_1.header.frame_id = "base"
@@ -101,10 +102,14 @@ def main():
 							goal_1.pose.position.z = z + 0.12
 
 							#Orientation as a quaternion
+							# [0.766, -0.623, 0.139, -0.082]
+							# [-0.077408, 0.99027, -0.024714, ]
+
+
 							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -1.0
+							goal_1.pose.orientation.y = -0.9848078
 							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = 0.0
+							goal_1.pose.orientation.w = -0.1736482
 
 
 
@@ -115,12 +120,13 @@ def main():
 
 							waypoints.append(copy.deepcopy(goal_1.pose))
 
-							plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
+							# plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
 
-							if not plandraw.execute_plan(plan):
-								raise Exception("Starting execution failed")
-							else:
-								queue.pop(0)
+							# if not plandraw.execute_plan(plan):
+							# 	raise Exception("Starting execution failed")
+							# else:
+							queue.pop(0)
+
 						elif cur.status_type == "next_point":
 							print("next")
 							goal_1 = PoseStamped()
@@ -131,22 +137,28 @@ def main():
 							goal_1.pose.position.y = y
 							goal_1.pose.position.z = z
 
+		
 							#Orientation as a quaternion
+
+							# goal_1.pose.orientation.x = 0.459962
+							# goal_1.pose.orientation.y = -0.7666033
+							# goal_1.pose.orientation.z = 0.0
+							# goal_1.pose.orientation.w = -0.4480562
 							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -1.0
+							goal_1.pose.orientation.y = -0.9848078
 							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = 0.0
+							goal_1.pose.orientation.w = -0.1736482
 
 
-							waypoints = []
+							# waypoints = []
 							waypoints.append(copy.deepcopy(goal_1.pose))
 
-							plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
+							# plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
 
-							if not plandraw.execute_plan(plan):
-								raise Exception("Execution failed, point is ", cur)
-							else:
-								queue.pop(0)
+							# if not plandraw.execute_plan(plan):
+							# 	raise Exception("Execution failed, point is ", cur)
+							# else:
+							queue.pop(0)
 						elif cur.status_type == "ending":
 							print("ppppppp      ",sec_pre)
 							# mmm = plandraw.get_cur_pos().pose
@@ -159,21 +171,24 @@ def main():
 							goal_1.pose.position.y = sec_pre.position_y 
 							goal_1.pose.position.z = sec_pre.position_z + 0.12
 
+		
 							#Orientation as a quaternion
-							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -1.0
-							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = 0.0
 
-							waypoints = []
+							goal_1.pose.orientation.x = 0.0
+							goal_1.pose.orientation.y = -0.9848078
+							goal_1.pose.orientation.z = 0.0
+							goal_1.pose.orientation.w = -0.1736482
+
+							# waypoints = []
 							waypoints.append(copy.deepcopy(goal_1.pose))
 
-							plan = plandraw.plan_to_pose(goal_1, [orien_const], waypoints)
+							plan = plandraw.plan_to_pose(goal_1, [], waypoints)
 
 							if not plandraw.execute_plan(plan):
 								raise Exception("Execution failed")
 							print("ti bi")
 							queue.pop(0)
+							waypoints = []
 				#raw_input("Press <Enter> to move next!!!")
 			except Exception as e:
 				print e
