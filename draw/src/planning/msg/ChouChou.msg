@@ -3,3 +3,4 @@ float64 position_y
 float64 position_z
 float64 edge_grad
 string status_type
+int64 pen_type

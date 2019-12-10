@@ -348,6 +348,16 @@ class imgProcess:
             circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
         result[1].append(circle_stroke[:])
 
+        circle_stroke = []
+        for x in np.linspace(0, np.pi * 4, num=30):
+            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        result[1].append(circle_stroke[:])
+
+        circle_stroke = []
+        for x in np.linspace(0, np.pi * 4, num=30):
+            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        result[1].append(circle_stroke[:])
+
 
 
         # for area_number in range(count)

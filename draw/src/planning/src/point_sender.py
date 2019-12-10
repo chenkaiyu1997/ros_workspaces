@@ -15,14 +15,15 @@ from std_msgs.msg import String
 import numpy as np
 from image_processor import imgProcess
 
-def create_ChouChou(x,y,z,g,s):
-	return ChouChou(position_x=x,position_y=y,position_z=z,edge_grad=g,status_type=s)
+def create_ChouChou(x,y,z,g,s,a):
+	print(x, y, z, g, s, a)
+	return ChouChou(position_x=x,position_y=y,position_z=z,edge_grad=g,status_type=s,pen_type=a)
 
-queue = [create_ChouChou(13333,4,0.2,0.4,"dummy"),
-					create_ChouChou(0.2,0.4,0.1,0.4,"dummy"),
-					create_ChouChou(0.10,0.4,0.6,0.2,"dummy"),
-					create_ChouChou(9,3,2,1,"dummy"),
-					create_ChouChou(3,2,1,3,"dummy")]  
+queue = [create_ChouChou(13333,4,0.2,0.4,"dummy",0),
+					create_ChouChou(0.2,0.4,0.1,0.4,"dummy",0),
+					create_ChouChou(0.10,0.4,0.6,0.2,"dummy",0),
+					create_ChouChou(9,3,2,1,"dummy",0),
+					create_ChouChou(3,2,1,3,"dummy",0)]  
 
 
 center = (0.670, -0.149)
@@ -55,11 +56,11 @@ def talker():
 	#Create an instance of the rospy.Publisher object which we can 
 	#use to publish messages to a topic. This publisher publishes 
 	#messages of type std_msgs/String to the topic /chatter_talk
-	pub = rospy.Publisher('position_messages', ChouChou, queue_size=15)
+	pub = rospy.Publisher('position_messages', ChouChou, queue_size=10000)
 	
 	# Create a timer object that will sleep long enough to result in
 	# a 10Hz publishing rate
-	r = rospy.Rate(5) # 10hz
+	r = rospy.Rate(50) # 10hz
 
 	# for q in queue:
 	# 	pub_content = q
@@ -99,17 +100,18 @@ def talker():
 if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
 	for area in points:
-		for stroke in points[area]:
+		for i, stroke in enumerate(points[area]):
+			pen = i % 3
 			first = True
 			z = -0.015
 			for (x, y) in stroke:
 				if first:  # the start point of the whole area
-					queue.append(create_ChouChou(x, y, z, 0, "starting"))
+					queue.append(create_ChouChou(x, y, z, 0, "starting", pen))
 					first = False
 				else:
-					queue.append(create_ChouChou(x, y, z, 0, "next_point"))
+					queue.append(create_ChouChou(x, y, z, 0, "next_point", pen))
 					
-			queue.append(create_ChouChou(0, 0, 0, 0, "ending"))
+			queue.append(create_ChouChou(x, y, z, 0, "ending", pen))
 	print("end queue push", len(queue))
 
 

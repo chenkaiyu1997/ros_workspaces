@@ -11,6 +11,7 @@ from moveit_msgs.msg import OrientationConstraint, Constraints, CollisionObject
 from geometry_msgs.msg import PoseStamped
 from shape_msgs.msg import SolidPrimitive
 from intera_interface import Limb
+from intera_interface import gripper as robot_gripper
 
 class PathPlanner(object):
 	"""
@@ -99,7 +100,6 @@ class PathPlanner(object):
 
 		# plan = self._group.plan()
 		plan, fraction = self._group.compute_cartesian_path(waypoints,0.01,0.0)
-
 		return plan
 
 	def execute_plan(self, plan):
@@ -109,7 +109,7 @@ class PathPlanner(object):
 		Inputs:
 		plan: a moveit_msgs/RobotTrajectory plan
 		"""
-
+		# print("llllllllllll", plan)
 		return self._group.execute(plan, True)
 
 
@@ -191,21 +191,27 @@ class PathPlanner(object):
 		except Exception as e:
 			print(e)
 
-	def gripper_open():
+	def gripper_open(self):
 		"""
 		Open the gripper
 		"""
 		
 		print('Opening...')
+		right_gripper = robot_gripper.Gripper('right')
+		right_gripper.calibrate()	
+		rospy.sleep(5)
+		right_gripper.close()	
+		rospy.sleep(5)
 		right_gripper.open()
 
 
-	def gripper_close():
+	def gripper_close(self):
 		"""S
 		Close the gripper
 		"""
 		
 		print('Closing...')
+		robot_gripper.Gripper('right')
 		right_gripper.close()
 
 		

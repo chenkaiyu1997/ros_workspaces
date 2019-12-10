@@ -14,8 +14,8 @@ from controller import Controller
 from intera_interface import Limb
 
 from planning.msg import ChouChou
-
-queue = []
+from collections import deque
+queue = deque()
 prev_msg = ""
 sec_pre = ""
 
@@ -39,7 +39,7 @@ def main():
 	global sec_pre
 
 	plandraw = PathPlanner('right_arm')
-
+	# plandraw.grip?per_op
 	plandraw.start_position()
 
 	## BOX
@@ -79,14 +79,34 @@ def main():
 	orien_const.absolute_z_axis_tolerance = 0.1;
 	orien_const.weight = 1.0;
 
+	def set_use_pen(pen_id, goal_1):
+		if pen_id == 0:
+			goal_1.pose.orientation.x = 0.0
+			goal_1.pose.orientation.y = -0.9848078
+			goal_1.pose.orientation.z = 0.0
+			goal_1.pose.orientation.w = -0.1736482
+		if pen_id == 1:
+			goal_1.pose.orientation.x = 0.0
+			goal_1.pose.orientation.y = -1.0
+			goal_1.pose.orientation.z = 0.0
+			goal_1.pose.orientation.w = 0.0
+		if pen_id == 2:
+			goal_1.pose.orientation.x = 0.0
+			goal_1.pose.orientation.y = -0.9848078
+			goal_1.pose.orientation.z = 0.0
+			goal_1.pose.orientation.w = 0.1736482
+
+
 	waypoints = []
 	while not rospy.is_shutdown():
 		#raw_input("~~~~~~~~~~~~!!!!!!!!!!!!")
 		while not rospy.is_shutdown():
 			try:
-				while queue:
-					cur = queue[0]
+				while len(queue):
+					print(len(queue))
+					cur = queue.popleft()
 					x,y,z = cur.position_x,cur.position_y,cur.position_z
+					x += 0.3
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
@@ -105,13 +125,7 @@ def main():
 							# [0.766, -0.623, 0.139, -0.082]
 							# [-0.077408, 0.99027, -0.024714, ]
 
-
-							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -0.9848078
-							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = -0.1736482
-
-
+							set_use_pen(cur.pen_type, goal_1)
 
 							
 							waypoints.append(copy.deepcopy(goal_1.pose))
@@ -125,7 +139,7 @@ def main():
 							# if not plandraw.execute_plan(plan):
 							# 	raise Exception("Starting execution failed")
 							# else:
-							queue.pop(0)
+							# queue.pop(0)
 
 						elif cur.status_type == "next_point":
 							print("next")
@@ -144,11 +158,8 @@ def main():
 							# goal_1.pose.orientation.y = -0.7666033
 							# goal_1.pose.orientation.z = 0.0
 							# goal_1.pose.orientation.w = -0.4480562
-							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -0.9848078
-							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = -0.1736482
 
+							set_use_pen(cur.pen_type, goal_1)
 
 							# waypoints = []
 							waypoints.append(copy.deepcopy(goal_1.pose))
@@ -158,37 +169,33 @@ def main():
 							# if not plandraw.execute_plan(plan):
 							# 	raise Exception("Execution failed, point is ", cur)
 							# else:
-							queue.pop(0)
+							# queue.pop(0)
 						elif cur.status_type == "ending":
-							print("ppppppp      ",sec_pre)
+							print("ppppppp      ",cur)
 							# mmm = plandraw.get_cur_pos().pose
 							
 							goal_1 = PoseStamped()
 							goal_1.header.frame_id = "base"
 
 							#x, y, and z position
-							goal_1.pose.position.x = sec_pre.position_x
-							goal_1.pose.position.y = sec_pre.position_y 
-							goal_1.pose.position.z = sec_pre.position_z + 0.12
+							goal_1.pose.position.x = x
+							goal_1.pose.position.y = y
+							goal_1.pose.position.z = z + 0.12
 
 		
 							#Orientation as a quaternion
-
-							goal_1.pose.orientation.x = 0.0
-							goal_1.pose.orientation.y = -0.9848078
-							goal_1.pose.orientation.z = 0.0
-							goal_1.pose.orientation.w = -0.1736482
+							set_use_pen(1, goal_1)
 
 							# waypoints = []
 							waypoints.append(copy.deepcopy(goal_1.pose))
-
 							plan = plandraw.plan_to_pose(goal_1, [], waypoints)
+							waypoints = []
+							# queue.pop(0)
 
 							if not plandraw.execute_plan(plan):
 								raise Exception("Execution failed")
 							print("ti bi")
-							queue.pop(0)
-							waypoints = []
+							# rospy.sleep(5)
 				#raw_input("Press <Enter> to move next!!!")
 			except Exception as e:
 				print e
@@ -200,7 +207,7 @@ def main():
 
 if __name__ == '__main__':
 	rospy.init_node('moveit_node')
-	rospy.Subscriber("position_messages", ChouChou, get_points, queue_size=10)
+	rospy.Subscriber("position_messages", ChouChou, get_points, queue_size=10000)
 	
 	main()
 	rospy.spin()
