@@ -99,9 +99,10 @@ def talker():
 # when exectued in the shell
 if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
-	for area in points:
-		for i, stroke in enumerate(points[area]):
-			pen = i % 3
+	for combined in points:
+		pen, data = combined
+		pen = pen - 1
+		for i, stroke in enumerate(data):
 			first = True
 			z = -0.015
 			for (x, y) in stroke:
