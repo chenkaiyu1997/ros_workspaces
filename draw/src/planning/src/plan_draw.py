@@ -39,6 +39,7 @@ def main():
 	global sec_pre
 
 	plandraw = PathPlanner('right_arm')
+	#plandraw.gripper_close()
 	# plandraw.grip?per_op
 	plandraw.start_position()
 
@@ -96,6 +97,23 @@ def main():
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = 0.1736482
 
+		# if pen_id == 0:
+		# 	goal_1.pose.orientation.x = 0.0
+		# 	goal_1.pose.orientation.y = -0.925877
+		# 	goal_1.pose.orientation.z = 0.0
+		# 	goal_1.pose.orientation.w = -0.360095
+		# if pen_id == 1:
+		# 	goal_1.pose.orientation.x = 0.0
+		# 	goal_1.pose.orientation.y = -0.9994
+		# 	goal_1.pose.orientation.z = 0.0
+		# 	goal_1.pose.orientation.w = 0.005035
+		# if pen_id == 2:
+		# 	goal_1.pose.orientation.x = 0.0
+		# 	goal_1.pose.orientation.y = -0.974507
+		# 	goal_1.pose.orientation.z = 0.0
+		# 	goal_1.pose.orientation.w = 0.222739
+		
+
 
 	waypoints = []
 	while not rospy.is_shutdown():
@@ -107,7 +125,7 @@ def main():
 					cur = queue.popleft()
 					x,y,z = cur.position_x, cur.position_y, cur.position_z
 					x -= 0.085  # ada different coordinate
-					z += 0.03
+					z += 0.13
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":

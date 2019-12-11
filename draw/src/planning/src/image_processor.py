@@ -406,7 +406,7 @@ class imgProcess:
                             result[prev][0].append((i, end))       
                     prev = img[i][j]  # update prev and start
                     start = j
-        # # print(result[254])
+        # print(result[254])
 
         return result
 
@@ -436,7 +436,7 @@ class imgProcess:
         standard_img = cali.calibrate()
 
         # first, threshold the original image
-        thresh = imgProcess.thresh_naive(standard_img, 0, 180)
+        thresh = imgProcess.thresh_naive(standard_img, 0, 185)
 
         # then do the naive edge detection; also do area segmentation underlyingly
         thresh = imgProcess.test_edge_naive(thresh)

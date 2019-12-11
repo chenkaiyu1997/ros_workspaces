@@ -100,8 +100,8 @@ def talker():
 if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
 	for area in points:
+		pen = area % 3
 		for i, stroke in enumerate(points[area]):
-			pen = i % 3
 			first = True
 			z = -0.015
 			for (x, y) in stroke:
