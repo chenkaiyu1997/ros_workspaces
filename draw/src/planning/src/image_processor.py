@@ -25,7 +25,7 @@ from skimage import filters
 from skimage.measure import block_reduce
 import time
 import pdb
-from trans import calibration
+from trans_new import calibration
 
 IMG_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -85,7 +85,6 @@ class imgProcess:
         grayscale : boolean
             true if image is in grayscale, false o/w
         """
-        return
         if not grayscale:
             plt.imshow(img_name)
             plt.title(title)
@@ -162,7 +161,7 @@ class imgProcess:
         
         # if our edge is bold, we need to blur first
         img_blur = img
-        # img_blur = cv2.GaussianBlur(img, (31, 31), cv2.BORDER_DEFAULT)  # need to tune here
+        # img_blur = cv2.GaussianBlur(img, (5, 5), cv2.BORDER_DEFAULT)  # need to tune here
         
         Kx = np.array([[-1,0,1], [-2,0,2], [-1,0,1]])
         Ky = np.array([[-1,-2,-1], [0,0,0], [1,2,1]])
@@ -211,13 +210,13 @@ class imgProcess:
         # np.savetxt(IMG_DIR + '/edge_naive', edges, fmt="%3f", delimiter=" ", newline='\n')
 
         # blur again, avoid hollow edge
-        edges = cv2.GaussianBlur(edges, (7, 7), cv2.BORDER_DEFAULT)  # need to tune here
-        imgProcess.show_image(edges, title='edge blur', grayscale=True)
+        edges = cv2.GaussianBlur(edges, (5, 5), cv2.BORDER_DEFAULT)  # need to tune here
+        # imgProcess.show_image(edges, title='edge blur', grayscale=True)
         # np.savetxt(IMG_DIR + '/edge_blur', edges, fmt="%3f", delimiter=" ", newline='\n')
         
         # first flip the image
         imgProcess.flip(edges)  # now black -> edge; white -> space
-        imgProcess.show_image(edges, title='edge flip', grayscale=True)
+        # imgProcess.show_image(edges, title='edge flip', grayscale=True)
         # np.savetxt(IMG_DIR + '/edge_flip', edges, fmt="%3f", delimiter=" ", newline='\n')
 
         # then assign each area number
@@ -328,35 +327,33 @@ class imgProcess:
         result : dict
             each element is a list of (start, end) tuples for a specific area number; each list is sorted
         """
-        # result = {}  # {area number: [(starts, ends)]}
 
-
-        (n, m) = img.shape
-
+        # circle test
+        # (n, m) = img.shape
         # result = {
         #     1: [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]
         # }        
-        result = {
-            1: [[(50, 50), (60, 50), (60, 60), (50, 60), (50, 50)]]
-        }
+        # result = {
+        #     1: [[(50, 50), (60, 50), (60, 60), (50, 60), (50, 50)]]
+        # }
 
-        center = [100, 100]
-        radius = 100
+        # center = [100, 100]
+        # radius = 100
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
 
 
@@ -384,31 +381,32 @@ class imgProcess:
         #         if 
 
 
+        (m, n) = img.shape
+        result = {}  # {area number: [(starts, ends)]}
+        for i in range(0, m, 3):  # skip 3 rows
+            start = 0  # column index of start points
+            prev = None
+            for j in range(n):
+                if img[i][j] != prev or j == n-1:  # new start or end of the row
+                    end = j
+                    if img[i][j] != prev:
+                        end = j-1
+                    # TODO: find a way to not hardcode the outerspace number here
+                    if prev != None and prev != 0 and prev != 255:  # 0 edge; 255 outer space
+                        if end - start < 7:  # less than 7 pixel, then ignore
+                            prev = img[i][j]  # update prev and start
+                            start = j
+                            continue
+                        # if end - start > 500 * 0.75:  # probably outer space
 
-
-
-        # for i in range(0, m, 1):  # skip 5 rows
-        #     start = 0  # column index of start points
-        #     prev = None
-        #     for j in range(n):
-        #         if img[i][j] != prev or j == n-1:  # new start or end of the row
-        #             end = j
-        #             if img[i][j] != prev:
-        #                 end = j-1
-        #             # TODO: find a way to not hardcode the outerspace number here
-        #             if prev != None and prev != 0 and prev != 255:  # 0 edge; 255 outer space
-        #                 if end - start < 5:  # less than 5 pixel, then ignore
-        #                     prev = img[i][j]  # update prev and start
-        #                     start = j
-        #                     continue
-        #                 if prev not in result:  # new area
-        #                     result[prev] = [((i, start), (i, end))]
-        #                 else:
-        #                     result[prev].append(((i, start), (i, end)))
-        #             prev = img[i][j]  # update prev and start
-        #             start = j
-        # print(result[254])
-
+                        if prev not in result:  # new area
+                            result[prev] = [[(i, start), (i, end)]]
+                        else:
+                            result[prev][0].append((i, start))
+                            result[prev][0].append((i, end))       
+                    prev = img[i][j]  # update prev and start
+                    start = j
+        # # print(result[254])
 
         return result
 
@@ -424,7 +422,8 @@ class imgProcess:
                     p = cali.transform_to_3d(np.array([x, y]))
                     temp.append(p)  # (np.array(2,), np.array(2))
                 worldPoints[area].append(temp[:])
-        # worldPoints[1] = [(cali.transform_to_3d(np.array([0, 499])),cali.transform_to_3d(np.array([0, 499])))]
+        # worldPoints[1] = [0]
+        # worldPoints[1][0] = [cali.transform_to_3d(np.array([50, 50])),cali.transform_to_3d(np.array([50, 50]))]
         return worldPoints
 
     @ staticmethod
@@ -437,7 +436,7 @@ class imgProcess:
         standard_img = cali.calibrate()
 
         # first, threshold the original image
-        thresh = imgProcess.thresh_naive(standard_img, 0, 200)
+        thresh = imgProcess.thresh_naive(standard_img, 0, 180)
 
         # then do the naive edge detection; also do area segmentation underlyingly
         thresh = imgProcess.test_edge_naive(thresh)
@@ -448,7 +447,7 @@ class imgProcess:
 
         # transfer index of the matrix to the coordinate in the world frame
         worldPoints = imgProcess.pixel2World(cali, areaPoints)
-        print(worldPoints)
+        # print(worldPoints)
         return worldPoints
         
 if __name__ == '__main__':
@@ -473,4 +472,4 @@ if __name__ == '__main__':
 
     # transfer index of the matrix to the coordinate in the world frame
     worldPoints = imgProcess.pixel2World(cali, areaPoints)
-    print(worldPoints)
+    # print(worldPoints)

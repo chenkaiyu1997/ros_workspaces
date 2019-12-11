@@ -28,14 +28,16 @@ struct ChouChou_
     , position_y(0.0)
     , position_z(0.0)
     , edge_grad(0.0)
-    , status_type()  {
+    , status_type()
+    , pen_type(0)  {
     }
   ChouChou_(const ContainerAllocator& _alloc)
     : position_x(0.0)
     , position_y(0.0)
     , position_z(0.0)
     , edge_grad(0.0)
-    , status_type(_alloc)  {
+    , status_type(_alloc)
+    , pen_type(0)  {
   (void)_alloc;
     }
 
@@ -55,6 +57,9 @@ struct ChouChou_
 
    typedef std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other >  _status_type_type;
   _status_type_type status_type;
+
+   typedef int64_t _pen_type_type;
+  _pen_type_type pen_type;
 
 
 
@@ -134,12 +139,12 @@ struct MD5Sum< ::planning::ChouChou_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "6671b4e310025559f107ccde9e7e7adf";
+    return "f61e71bd64cbb15ad5eb3947b804986d";
   }
 
   static const char* value(const ::planning::ChouChou_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x6671b4e310025559ULL;
-  static const uint64_t static_value2 = 0xf107ccde9e7e7adfULL;
+  static const uint64_t static_value1 = 0xf61e71bd64cbb15aULL;
+  static const uint64_t static_value2 = 0xd5eb3947b804986dULL;
 };
 
 template<class ContainerAllocator>
@@ -163,6 +168,7 @@ float64 position_y\n\
 float64 position_z\n\
 float64 edge_grad\n\
 string status_type\n\
+int64 pen_type\n\
 ";
   }
 
@@ -186,6 +192,7 @@ namespace serialization
       stream.next(m.position_z);
       stream.next(m.edge_grad);
       stream.next(m.status_type);
+      stream.next(m.pen_type);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -214,6 +221,8 @@ struct Printer< ::planning::ChouChou_<ContainerAllocator> >
     Printer<double>::stream(s, indent + "  ", v.edge_grad);
     s << indent << "status_type: ";
     Printer<std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other > >::stream(s, indent + "  ", v.status_type);
+    s << indent << "pen_type: ";
+    Printer<int64_t>::stream(s, indent + "  ", v.pen_type);
   }
 };
 

@@ -9,4 +9,6 @@
           EDGE_GRAD
           STATUS_TYPE-VAL
           STATUS_TYPE
+          PEN_TYPE-VAL
+          PEN_TYPE
 ))

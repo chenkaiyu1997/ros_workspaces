@@ -105,8 +105,9 @@ def main():
 				while len(queue):
 					print(len(queue))
 					cur = queue.popleft()
-					x,y,z = cur.position_x,cur.position_y,cur.position_z
-					x += 0.3
+					x,y,z = cur.position_x, cur.position_y, cur.position_z
+					x -= 0.085  # ada different coordinate
+					z += 0.03
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
