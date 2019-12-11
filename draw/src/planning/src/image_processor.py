@@ -30,11 +30,11 @@ import copy
 
 IMG_DIR = os.path.dirname(os.path.abspath(__file__))
 
-fd_1 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 1])
-fd_2 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 2])
-fd_3 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 3])
-fd_4 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 4])
-fd_5 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 5])
+fd1 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 1])
+fd2 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 2])
+fd3 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 3])
+fd4 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 4])
+fd5 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 5])
 
 class imgProcess:
     def __init__(self):
@@ -366,13 +366,14 @@ class imgProcess:
 
         def dila(i, j, img):
             # Let the pen stroke expand
-            for fx, fy in fd_3:
+            for fx, fy in fd4:
                 di, dj = i + fx, j + fy
                 if di >= 0 and di <= len(img) and dj >= 0 and dj <= len(img[0]):
-                    img[di][dj] = 0
+                    if img[di][dj] != 0:
+                        img[di][dj] = 1
 
         def has_zero(i, j, img):
-            for fx, fy in fd_3:
+            for fx, fy in fd2:
                 di, dj = i + fx, j + fy
                 if di >= 0 and di <= len(img) and dj >= 0 and dj <= len(img[0]):
                     if img[di][dj] == 0:
@@ -416,35 +417,38 @@ class imgProcess:
                 dila(sti, stj, img)
 
                 # fd = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
-                fd = list(dirlist_run)
-                print(fd)
+                # fd = list(dirlist_run)
+                # print(fd)
 
                 while True:
                     # current_d, new_d = 0, 0
-                    new_d = current_d
-                    print('in', sti, stj, new_d, img[sti][stj])
-                    print()
-                    dead_end = False
-                    while True:
-                        newsti, newstj = sti + 1 * fd[new_d][0], stj + 1 * fd[new_d][1]
-                        print('try', newsti, newstj, img[newsti][newstj])
-                        if newsti >= 0 and newsti < n and newstj >= 0 and newstj < m and img[newsti][newstj] == 255 - area_number:
-                            sti, stj = newsti, newstj
-                            path.append((sti, stj))
-                            dila(sti, stj, img)
-                            break
-                        else:
-                            new_d = (new_d + 1) % len(fd)
-                            if new_d == current_d:
-                                dead_end = True
-                                break
+                    # new_d = current_d
+                    print('in', sti, stj, img[sti][stj])
+                    dead_end = True
+
+                    for fd in [fd1, fd2 - fd1, fd3 - fd2, fd4 - fd3, fd5 - fd4]:
+                        for fx, fy in fd:
+                            newsti, newstj = sti + fx, stj + fy
+                            print('try', newsti, newstj, img[newsti][newstj])
+                            if newsti >= 0 and newsti < n and newstj >= 0 and newstj < m and img[newsti][newstj] == 255 - area_number:
+                                if has_zero(newsti, newstj, img):
+                                    sti, stj = newsti, newstj
+                                    path.append((sti, stj))
+                                    dila(sti, stj, img)
+                                    dead_end = False
+                                    break
+
                     if dead_end:
                         break
-                    current_d = new_d
                 if len(path) > 1:
                     path_list.append(path[:])
                 print(path)
                 imgProcess.show_image(img)
+
+                for i in range(0, n):
+                    for j in range(0, m):
+                        if img[i][j] == 1:
+                            img[i][j] = 0
             result[area_number] = copy.deepcopy(path_list)
 
         return result
