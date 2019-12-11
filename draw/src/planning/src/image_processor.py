@@ -26,8 +26,15 @@ from skimage.measure import block_reduce
 import time
 import pdb
 from trans import calibration
+import copy
 
 IMG_DIR = os.path.dirname(os.path.abspath(__file__))
+
+fd_1 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 1])
+fd_2 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 2])
+fd_3 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 3])
+fd_4 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 4])
+fd_5 = set([(x, y) for x in range(-5, 6) for y in range(-5, 6) if abs(x) + abs(y) <= 5])
 
 class imgProcess:
     def __init__(self):
@@ -85,7 +92,6 @@ class imgProcess:
         grayscale : boolean
             true if image is in grayscale, false o/w
         """
-        return
         if not grayscale:
             plt.imshow(img_name)
             plt.title(title)
@@ -228,7 +234,7 @@ class imgProcess:
 
         # save the processed image
         cv2.imwrite(IMG_DIR + "/test_naive.jpg", edges)
-        return edges
+        return edges, count
 
     @staticmethod
     def test_edge_canny(img):
@@ -315,7 +321,7 @@ class imgProcess:
         return count
 
     @staticmethod
-    def findStartandEnd(img):
+    def findStartandEnd(img, count):
         """This function will put all (start index, end index for each row) tuple in a dict.
         
         Parameters
@@ -330,85 +336,116 @@ class imgProcess:
         """
         # result = {}  # {area number: [(starts, ends)]}
 
-
         (n, m) = img.shape
-
-        # result = {
-        #     1: [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]
-        # }        
+        print(img)
         result = {
-            1: [[(50, 50), (60, 50), (60, 60), (50, 60), (50, 50)]]
+            255: [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]
         }
+        # result = {
+        #     1: [[(50, 50), (60, 50), (60, 60), (50, 60), (50, 50)]]
+        # }
 
-        center = [100, 100]
-        radius = 100
+        # center = [100, 100]
+        # radius = 100
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
-        circle_stroke = []
-        for x in np.linspace(0, np.pi * 4, num=30):
-            circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
-        result[1].append(circle_stroke[:])
-
-
-
-        # for area_number in range(count)
-        # while True:
-        #     sti = -1
-        #     stj = -1
-        #     # find 0
-        #     for i in range(0, n):
-        #         for j in range(0, m):
-        #             if img[i][j] == 0:
-        #                 sti = i
-        #                 stj = j
-        #                 break
-        #         if sti != -1:
-        #             break
-
-        #     if sti == -1 and stj == -1:
-        #         break
+        # circle_stroke = []
+        # for x in np.linspace(0, np.pi * 4, num=30):
+        #     circle_stroke.append((radius * np.cos(x) + center[0], center[1] + radius * np.sin(x)))
+        # result[1].append(circle_stroke[:])
 
 
-        #     fd = [(-1, 0), (-1, 1), (0, 1), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
-        #     current_d = 0
-        #     while True:
-        #         if 
+        def dila(i, j, img):
+            # Let the pen stroke expand
+            for fx, fy in fd_3:
+                di, dj = i + fx, j + fy
+                if di >= 0 and di <= len(img) and dj >= 0 and dj <= len(img[0]):
+                    img[di][dj] = 0
+
+        def has_zero(i, j, img):
+            for fx, fy in fd_3:
+                di, dj = i + fx, j + fy
+                if di >= 0 and di <= len(img) and dj >= 0 and dj <= len(img[0]):
+                    if img[di][dj] == 0:
+                        return True
+            return False
 
 
+        imgProcess.show_image(img)
+        for area_number in range(0, count):
+            cnt = 0
+            for i in range(0, n):
+                for j in range(0, m): 
+                    if img[i][j] == 255 - area_number:
+                        cnt += 1
+            if cnt <= 0.01 * n * m:
+                continue
 
+            if cnt >= 0.5 * n * m:
+                continue
+        
+            print(count - area_number)
+            path_list = []
+            while True:
+                path = []
+                sti = -1
+                stj = -1
+                # find 0
+                for i in range(0, n):
+                    for j in range(0, m):
+                        if img[i][j] == 255 - area_number and has_zero(i, j, img):
+                            sti = i
+                            stj = j
+                            break
+                    if sti != -1:
+                        break
+                
+                if sti == -1 and stj == -1:
+                    break
+                print(area_number, sti, stj, img[sti][stj])
+                path.append((sti, stj))
+                dila(sti, stj, img)
 
+                # fd = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+                fd = list(dirlist_run)
+                print(fd)
 
-        # for i in range(0, m, 1):  # skip 5 rows
-        #     start = 0  # column index of start points
-        #     prev = None
-        #     for j in range(n):
-        #         if img[i][j] != prev or j == n-1:  # new start or end of the row
-        #             end = j
-        #             if img[i][j] != prev:
-        #                 end = j-1
-        #             # TODO: find a way to not hardcode the outerspace number here
-        #             if prev != None and prev != 0 and prev != 255:  # 0 edge; 255 outer space
-        #                 if end - start < 5:  # less than 5 pixel, then ignore
-        #                     prev = img[i][j]  # update prev and start
-        #                     start = j
-        #                     continue
-        #                 if prev not in result:  # new area
-        #                     result[prev] = [((i, start), (i, end))]
-        #                 else:
-        #                     result[prev].append(((i, start), (i, end)))
-        #             prev = img[i][j]  # update prev and start
-        #             start = j
-        # print(result[254])
-
+                while True:
+                    # current_d, new_d = 0, 0
+                    new_d = current_d
+                    print('in', sti, stj, new_d, img[sti][stj])
+                    print()
+                    dead_end = False
+                    while True:
+                        newsti, newstj = sti + 1 * fd[new_d][0], stj + 1 * fd[new_d][1]
+                        print('try', newsti, newstj, img[newsti][newstj])
+                        if newsti >= 0 and newsti < n and newstj >= 0 and newstj < m and img[newsti][newstj] == 255 - area_number:
+                            sti, stj = newsti, newstj
+                            path.append((sti, stj))
+                            dila(sti, stj, img)
+                            break
+                        else:
+                            new_d = (new_d + 1) % len(fd)
+                            if new_d == current_d:
+                                dead_end = True
+                                break
+                    if dead_end:
+                        break
+                    current_d = new_d
+                if len(path) > 1:
+                    path_list.append(path[:])
+                print(path)
+                imgProcess.show_image(img)
+            result[area_number] = copy.deepcopy(path_list)
 
         return result
 
@@ -437,14 +474,14 @@ class imgProcess:
         standard_img = cali.calibrate()
 
         # first, threshold the original image
-        thresh = imgProcess.thresh_naive(standard_img, 0, 200)
+        thresh = imgProcess.thresh_naive(standard_img, 0, 210)
 
         # then do the naive edge detection; also do area segmentation underlyingly
-        thresh = imgProcess.test_edge_naive(thresh)
+        thresh, count = imgProcess.test_edge_naive(thresh)
         # imgProcess.test_edge_canny(test_img)
 
         # get start points and corresponding end points
-        areaPoints = imgProcess.findStartandEnd(thresh)  # {area number: [(starts, ends)]}
+        areaPoints = imgProcess.findStartandEnd(thresh, count)  # {area number: [(starts, ends)]}
 
         # transfer index of the matrix to the coordinate in the world frame
         worldPoints = imgProcess.pixel2World(cali, areaPoints)
@@ -462,14 +499,14 @@ if __name__ == '__main__':
     standard_img = cali.calibrate()
 
     # first, threshold the original image
-    thresh = imgProcess.thresh_naive(standard_img, 0, 200)  # may need to tune the thresh hold
+    thresh = imgProcess.thresh_naive(standard_img, 0, 205)  # may need to tune the thresh hold
 
     # then do the naive edge detection; also do area segmentation underlyingly
-    thresh = imgProcess.test_edge_naive(thresh)
+    thresh, count = imgProcess.test_edge_naive(thresh)
     # imgProcess.test_edge_canny(test_img)
 
     # get start points and corresponding end points
-    areaPoints = imgProcess.findStartandEnd(thresh)  # {area number: [(starts, ends)]}
+    areaPoints = imgProcess.findStartandEnd(thresh, count)  # {area number: [(starts, ends)]}
 
     # transfer index of the matrix to the coordinate in the world frame
     worldPoints = imgProcess.pixel2World(cali, areaPoints)
