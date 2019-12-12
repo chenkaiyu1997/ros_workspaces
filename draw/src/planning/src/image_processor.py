@@ -706,7 +706,7 @@ class imgProcess:
         standard_img = cali.calibrate()
         imgProcess.show_image(standard_img)
         # first, threshold the original image
-        thresh = imgProcess.thresh_naive(standard_img, 0, 150)
+        thresh = imgProcess.thresh_naive(standard_img, 0, 160)
 
         imgProcess.show_image(thresh)
         # then do the naive edge detection; also do area segmentation underlyingly

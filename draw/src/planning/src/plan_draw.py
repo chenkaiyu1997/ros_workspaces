@@ -39,8 +39,8 @@ def main():
 	global sec_pre
 
 	plandraw = PathPlanner('right_arm')
-	plandraw.gripper_close()
-	rsopy.sleep(10)
+	# plandraw.gripper_close()
+	# rospy.sleep(10)
 	# plandraw.grip?per_op
 	plandraw.start_position()
 
@@ -82,15 +82,15 @@ def main():
 	orien_const.weight = 1.0;
 
 	def set_use_pen(pen_id, goal_1):
-		if pen_id == 0: # Green The innar one
+		if pen_id == 0: # Blue The innar one
 			goal_1.pose.orientation.x = 0.0
 			goal_1.pose.orientation.y = -0.9848078
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = -0.1736482
 
-			goal_1.pose.position.x += 0.02
-			goal_1.pose.position.y -= 0.012
-			goal_1.pose.position.z += 0.001
+			goal_1.pose.position.x += 0.008
+			goal_1.pose.position.y -= 0.010
+			goal_1.pose.position.z -= 0.009
 
 
 		if pen_id == 1:
@@ -99,9 +99,9 @@ def main():
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = 0.0
 
-			goal_1.pose.position.x += 0
-			goal_1.pose.position.y += 0.002
-			goal_1.pose.position.z -= 0.004
+			goal_1.pose.position.x -= 0.014
+			goal_1.pose.position.y -= 0.002
+			goal_1.pose.position.z -= 0.014
 
 		if pen_id == 2:
 			goal_1.pose.orientation.x = 0.0
@@ -109,9 +109,9 @@ def main():
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = 0.1736482
 
-			goal_1.pose.position.x -= 0.025
-			goal_1.pose.position.y += 0
-			goal_1.pose.position.z += 0.000
+			goal_1.pose.position.x -= 0.028
+			goal_1.pose.position.y -= 0.003
+			goal_1.pose.position.z -= 0.009
 
 		# if pen_id == 0:
 		# 	goal_1.pose.orientation.x = 0.0
@@ -137,12 +137,15 @@ def main():
 		while not rospy.is_shutdown():
 			try:
 				while len(queue):
-					print(len(queue))
+					# print(len(queue))
 					cur = queue.popleft()
 					x,y,z = cur.position_x, cur.position_y, cur.position_z
-					x += 0.005  # ada different coordinate
+					x += 0.002  # ada different coordinate
 					z -= 0.103
-					# y -= 0.012
+					z += 0.037
+					# z += 0.2
+					x -= 0.013
+					y += 0.010
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
@@ -178,7 +181,7 @@ def main():
 							# queue.pop(0)
 
 						elif cur.status_type == "next_point":
-							print("next")
+							# print("next")
 							goal_1 = PoseStamped()
 							goal_1.header.frame_id = "base"
 
