@@ -30,7 +30,8 @@ def callback(message):
     # cur_img[:,:,2] = cv_image[:,:,0]
     if(i%100==1):
         print("enter")
-        cv2.imwrite('test'+str(time.time())+'.jpg', cv_image)
+        # cv2.imwrite('test'+str(time.time())+'.jpg', cv_image)
+        cv2.imwrite('./src/planning/src/test.jpg', cv_image)
     i+=1
     # print(rospy.get_name() + " Message: " + message.UserInput + ", Sent at: " + str(message.Time) \
     #     + ", Received at: " + str(rospy.get_time()))

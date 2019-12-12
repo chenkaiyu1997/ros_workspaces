@@ -16,7 +16,7 @@ import numpy as np
 from image_processor import imgProcess
 
 def create_ChouChou(x,y,z,g,s,a):
-	print(x, y, z, g, s, a)
+	# print(x, y, z, g, s, a)
 	return ChouChou(position_x=x,position_y=y,position_z=z,edge_grad=g,status_type=s,pen_type=a)
 
 queue = [create_ChouChou(13333,4,0.2,0.4,"dummy",0),
@@ -99,9 +99,12 @@ def talker():
 # when exectued in the shell
 if __name__ == '__main__':
 	points = imgProcess.getPoints()  # {area number: [(starts in world frame, ends in world frame)]}
-	for area in points:
-		pen = area % 3
-		for i, stroke in enumerate(points[area]):
+	for combined in points:
+		pen, data = combined
+		pen = pen - 1
+		for i, stroke in enumerate(data):
+			if len(stroke) <= 3:
+				continue
 			first = True
 			z = -0.015
 			for (x, y) in stroke:

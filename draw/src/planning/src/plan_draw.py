@@ -39,7 +39,8 @@ def main():
 	global sec_pre
 
 	plandraw = PathPlanner('right_arm')
-	#plandraw.gripper_close()
+	plandraw.gripper_close()
+	rsopy.sleep(10)
 	# plandraw.grip?per_op
 	plandraw.start_position()
 
@@ -81,21 +82,36 @@ def main():
 	orien_const.weight = 1.0;
 
 	def set_use_pen(pen_id, goal_1):
-		if pen_id == 0:
+		if pen_id == 0: # Green The innar one
 			goal_1.pose.orientation.x = 0.0
 			goal_1.pose.orientation.y = -0.9848078
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = -0.1736482
+
+			goal_1.pose.position.x += 0.02
+			goal_1.pose.position.y -= 0.012
+			goal_1.pose.position.z += 0.001
+
+
 		if pen_id == 1:
 			goal_1.pose.orientation.x = 0.0
 			goal_1.pose.orientation.y = -1.0
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = 0.0
+
+			goal_1.pose.position.x += 0
+			goal_1.pose.position.y += 0.002
+			goal_1.pose.position.z -= 0.004
+
 		if pen_id == 2:
 			goal_1.pose.orientation.x = 0.0
 			goal_1.pose.orientation.y = -0.9848078
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = 0.1736482
+
+			goal_1.pose.position.x -= 0.025
+			goal_1.pose.position.y += 0
+			goal_1.pose.position.z += 0.000
 
 		# if pen_id == 0:
 		# 	goal_1.pose.orientation.x = 0.0
@@ -124,8 +140,9 @@ def main():
 					print(len(queue))
 					cur = queue.popleft()
 					x,y,z = cur.position_x, cur.position_y, cur.position_z
-					x -= 0.085  # ada different coordinate
-					z += 0.13
+					x += 0.005  # ada different coordinate
+					z -= 0.103
+					# y -= 0.012
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":

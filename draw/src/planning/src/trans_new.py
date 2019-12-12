@@ -87,10 +87,15 @@ class calibration():
             std_clicked.append([cur_y,cur_x])
         # std_clicked = clicked
 
-        objpoints = np.float32([[0.554,-0.240,0],
-                            [0.549,0.319,0],
-                            [0.944,0.316,0],
-                            [0.952,-0.235,0]])
+        # objpoints = np.float32([[0.554,-0.240,0],
+        #                     [0.549,0.319,0],
+        #                     [0.944,0.316,0],
+        #                     [0.952,-0.235,0]]) #alan
+
+        objpoints = np.float32([[0.398,-0.283,0],
+                            [0.454,0.271,0],
+                            [0.815,0.228,0],
+                            [0.773,-0.304,0]])
 
         imgpoints = np.float32([[std_clicked[0][0],std_clicked[0][1]],
                             [std_clicked[1][0],std_clicked[1][1]],
@@ -130,7 +135,7 @@ class calibration():
 
         world_pos = inv_A.dot(b)
         world_pos = world_pos[:2]
-        print('pt: ', pt, 'gen_pt is: ', gen_pt, 'world_pos is: ', world_pos)
+        # print('pt: ', pt, 'gen_pt is: ', gen_pt, 'world_pos is: ', world_pos)
         return world_pos
         
 
