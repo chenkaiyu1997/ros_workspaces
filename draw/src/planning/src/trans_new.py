@@ -50,9 +50,10 @@ class calibration():
         plt.figure()
         plt.imshow(self.img)
 
-        clicked = plt.ginput(4, timeout=0, show_clicks=True)
-        clicked = [tuple([round(x) for x in tup]) for tup in clicked]
-        print(clicked)
+        # clicked = plt.ginput(4, timeout=0, show_clicks=True)
+        # clicked = [tuple([round(x) for x in tup]) for tup in clicked]
+        # print(clicked)
+        clicked = [(377.0, 355.0), (796.0, 369.0), (907.0, 553.0), (342.0, 555.0)]
         # clicked = [(415.0, 482.0), (632.0, 472.0), (808.0, 463.0), (850.0, 547.0), (902.0, 639.0), (671.0, 655.0), (374.0, 675.0), (395.0, 562.0)]
         # objpoints = np.zeros((4,1,3))
         

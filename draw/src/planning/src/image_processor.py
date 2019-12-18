@@ -96,6 +96,7 @@ class imgProcess:
         grayscale : boolean
             true if image is in grayscale, false o/w
         """
+        return
         if not force:
             return
         if paths is not None:
@@ -689,7 +690,7 @@ class imgProcess:
                 temp = []  # [(starts in world frame, ends in world frame)]
                 for (x, y) in stroke:
                     # startWorld = cali.transform_to_3d(np.array([start[0], start[1]]))
-                    p = cali.transform_to_3d(np.array([x, y]))
+                    p = cali.transform_to_3d(np.array([x / 1.7, y / 1.7]))
                     temp.append(p)  # (np.array(2,), np.array(2))
                 tstore.append(temp[:])
             worldPoints.append((data[0], copy.deepcopy(tstore)))

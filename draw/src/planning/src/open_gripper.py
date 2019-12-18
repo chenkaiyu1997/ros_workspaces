@@ -39,7 +39,9 @@ def main():
 	global sec_pre
 
 	plandraw = PathPlanner('right_arm')
+	plandraw.gripper_open()
 	plandraw.gripper_close()
+	# plandraw.gripper_open()
 	rospy.sleep(10)
 
 

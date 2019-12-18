@@ -88,9 +88,9 @@ def main():
 			goal_1.pose.orientation.z = 0.0
 			goal_1.pose.orientation.w = -0.1736482
 
-			goal_1.pose.position.x += 0.008
-			goal_1.pose.position.y -= 0.010
-			goal_1.pose.position.z -= 0.009
+			goal_1.pose.position.x -= 0.003
+			goal_1.pose.position.y -= 0.013
+			goal_1.pose.position.z -= 0.011
 
 
 		if pen_id == 1:
@@ -101,7 +101,7 @@ def main():
 
 			goal_1.pose.position.x -= 0.014
 			goal_1.pose.position.y -= 0.002
-			goal_1.pose.position.z -= 0.014
+			goal_1.pose.position.z -= 0.017
 
 		if pen_id == 2:
 			goal_1.pose.orientation.x = 0.0
@@ -111,7 +111,7 @@ def main():
 
 			goal_1.pose.position.x -= 0.028
 			goal_1.pose.position.y -= 0.003
-			goal_1.pose.position.z -= 0.009
+			goal_1.pose.position.z -= 0.010
 
 		# if pen_id == 0:
 		# 	goal_1.pose.orientation.x = 0.0
@@ -146,6 +146,10 @@ def main():
 					# z += 0.2
 					x -= 0.013
 					y += 0.010
+
+					z += 0.005
+
+					x += 0.12
 					if cur.status_type != "edge_grad":
 						# ti bi !!!!! luo bi !!!!
 						if cur.status_type == "starting":
