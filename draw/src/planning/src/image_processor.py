@@ -26,7 +26,7 @@ from skimage import filters
 from skimage.measure import block_reduce
 import time
 import pdb
-from trans import calibration
+from trans_new import calibration
 import copy
 from collections import deque
 
@@ -371,6 +371,315 @@ class imgProcess:
         (n, m) = img.shape
         print(img)
         result = [
+            # (1, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]),
+            # (2, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]),
+            # (3, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]])
+        ]
+
+        def dila(i, j, img, color = 0):
+            # Let the pen stroke expand
+            n, m = len(img), len(img[0])
+            for fx, fy in fd2:
+                di, dj = i + fx, j + fy
+                if di >= 0 and di < n and dj >= 0 and dj < m:
+                    if color == 0 or (color == 1 and img[di][dj] != 0):
+                        img[di][dj] = color
+
+        def has_zero(i, j, img):
+            n, m = len(img), len(img[0])
+            for fx, fy in fd0:
+                di, dj = i + fx, j + fy
+                if di >= 0 and di < n and dj >= 0 and dj < m:
+                    if img[di][dj] == 0:
+                        return True
+            return False
+
+        def draw_sub(start_y, end_y, longrange, img, color):
+            empty_th = 10
+            path = []
+            for i in range(start_y, end_y, 3):
+                path.append((i, longrange[i][0] + empty_th))
+                path.append((i, longrange[i][1] - empty_th))
+
+            for i in range(start_y, end_y, 1):
+                for j in range(longrange[i][0] + empty_th, longrange[i][1] - empty_th + 1):
+                    dila(i, j, img)
+
+            return path[:]
+
+        def draw_edge(sti, stj, img, color):
+
+            if img[sti][stj] != color:
+                print('COLOR WRONG')
+                return []
+
+            paths = []
+            while True:
+                vis = {}
+                path = [(sti, stj)]
+
+                while True:
+                    # current_d, new_d = 0, 0
+                    # new_d = current_d
+                    # print('in', sti, stj, img[sti][stj])
+                    dead_end = True
+                    vis[(sti, stj)] = True
+                    for fx, fy in fd0 + fdc:
+                        newsti, newstj = sti + fx, stj + fy
+                        # print('try', newsti, newstj, img[newsti][newstj])
+                        if newsti >= 0 and newsti < n and newstj >= 0 and newstj < m and img[newsti][newstj] == 255 - area_number and (newsti, newstj) not in vis:
+                            if has_zero(newsti, newstj, img):
+                                sti, stj = newsti, newstj
+                                path.append((sti, stj))
+                                vis[(sti, stj)] = True
+                                dead_end = False
+                                break
+
+                    if dead_end:
+                        break
+
+                if len(path) >= 1:
+                    for x, y in path:
+                        dila(x, y, img, color=1)
+                    paths.extend(path)
+                else:
+                    break
+
+                # BFS:
+
+                q = deque()
+                q.append(path[-1])
+                sti = -1
+                stj = -1
+                vis = {}
+                vis[path[-1]] = True
+                while len(q) > 0:
+                    i, j = q.popleft() 
+                    for fx, fy in fd0:
+                        ti, tj = i + fx, j + fy
+                        if ti >= 0 and ti < n and tj >= 0 and tj < m and (ti, tj) not in vis:
+                            if img[ti][tj] == 255 - area_number:
+                                found = True
+                                sti = ti
+                                stj = tj
+                                break
+                            elif img[ti][tj] == 1:
+                                q.append((ti, tj))
+                                vis[(ti, tj)] = True
+                    
+                    if sti != -1:
+                        break
+                            
+                if sti == -1:
+                    break
+
+            for i in range(0, n):
+                for j in range(0, m):
+                    if img[i][j] == 1:
+                        img[i][j] = 0
+
+            return paths[:]
+
+
+        def floodfill_black(srcimg):
+            img = copy.deepcopy(srcimg)  
+
+            def DFS(i, j, count):
+                stack = [(i, j)]
+                while stack:
+                    (x, y) = stack[-1]  # top of the stack
+                    # up
+                    if x-1 >= 0 and img[x-1, y] == 0 and (x-1, y) not in visited:
+                        stack.append((x-1, y))
+                        visited.add((x-1, y))
+                        continue
+                    # down
+                    if x+1 < m and img[x+1, y] == 0 and (x+1, y) not in visited:
+                        stack.append((x+1, y))
+                        visited.add((x+1, y))
+                        continue
+                    # left
+                    if y-1 >= 0 and img[x, y-1] == 0 and (x, y-1) not in visited:
+                        stack.append((x, y-1))
+                        visited.add((x, y-1))
+                        continue
+                    # right
+                    if y+1 < n and img[x, y+1] == 0 and (x, y+1) not in visited:
+                        stack.append((x, y+1))
+                        visited.add((x, y+1))
+                        continue
+                    stack.pop()
+                    img[x, y] = (150-count)
+                return  # stack empty
+                        
+            count = 0
+            (m, n) = img.shape
+            visited = set()  # keep all seen index
+            for i in range(m):
+                for j in range(n):
+                    if (i, j) not in visited and img[i, j] == 0:
+                        DFS(i, j, count)  # assign white area number
+                        count += 1
+            black_data = {}
+            for cnt in range(count):
+                edges = [m-1, 0, n-1, 0]
+                for i in range(0, m):
+                    for j in range(0, n): 
+                        if img[i][j] == 150 - cnt:
+                            edges[0] = min(i, edges[0])
+                            edges[1] = max(i, edges[1])
+                            edges[2] = min(j, edges[2])
+                            edges[3] = max(j, edges[3])
+                black_data[cnt] = edges[:]
+            return black_data
+
+        def detect_number(edges, black_data, img, current_color):
+            for black_number in black_data:
+                if len(black_data[black_number]) > 0:
+                    if black_data[black_number][0] > edges[0] and black_data[black_number][1] < edges[1] and black_data[black_number][2] > edges[2] and black_data[black_number][3] < edges[3]:
+                        
+                        # Found
+                        for i in range(black_data[black_number][0], black_data[black_number][1]+1):
+                            for j in range(black_data[black_number][2], black_data[black_number][3]+1):
+                                img[i][j] = current_color
+
+                        height = black_data[black_number][1] - black_data[black_number][0] + 1
+                        width = black_data[black_number][3] - black_data[black_number][2] + 1
+                        black_data[black_number] = []
+
+                        print('Detected Number', width, height)
+                        if width < 2 or height < 2:
+                            return random.randint(1, 3) #Error
+
+                        if width * 3 < height:
+                            return 1
+                        if width > height:
+                            return 2
+                        return 3
+
+            return random.randint(1, 3)
+
+        imgProcess.show_image(img)
+        black_data = floodfill_black(img)
+        print(black_data)
+        for area_number in range(0, count):
+            cnt = 0
+            edges = [n-1, 0, m-1, 0]
+            for i in range(0, n):
+                for j in range(0, m): 
+                    if img[i][j] == 255 - area_number:
+                        cnt += 1
+                        edges[0] = min(i, edges[0])
+                        edges[1] = max(i, edges[1])
+                        edges[2] = min(j, edges[2])
+                        edges[3] = max(j, edges[3])
+            if cnt <= 0.008 * n * m:
+                continue
+
+            if cnt >= 0.5 * n * m:
+                continue
+
+            paths = []
+            current_color = 255 - area_number
+            print(255 - area_number)
+
+            number = detect_number(edges, black_data, img, current_color)
+
+            TH = 22
+            # Step 1
+            found = True
+            while found == True:
+                found = False
+                longrange = [0 for i in range(n)]
+                for i in range(n):
+                    start = -1
+                    end = -1
+                    for j in range(m):
+                        if img[i][j] == current_color:
+                            end = j
+                            if start == -1:
+                                start = j
+                        else:
+                            if start != -1:
+                                break
+                    longrange[i] = (start, end) # [start, end]
+
+                i = 0
+                while i < n:
+                    # print(longrange[i])
+                    if longrange[i][1] - longrange[i][0] + 1 >= TH:
+                        j = i+1
+                        while j < n and longrange[j][1] - longrange[j][0] + 1 >= TH:
+                            j += 1
+                        if i + 5 < j:
+                            found = True
+                            paths.append(draw_sub(i, j, longrange, img, current_color)) # [i, j)
+                            # print(paths[-1])
+                            imgProcess.show_image(img, paths=[paths[-1]])
+
+                            st = []
+                            for k in range(longrange[i][0], longrange[i][1] + 1):
+                                st.append((i, k, img[i][k]))
+                                img[i][k] = 0
+
+                            for k in range(longrange[j-1][0], longrange[j-1][1] + 1):
+                                st.append((j-1, k, img[j-1][k]))
+                                img[j-1][k] = 0
+                            imgProcess.show_image(img)
+
+                            paths.append(draw_edge(i+1, longrange[i+1][0], img, current_color))
+                            # print(paths[-1])
+                            imgProcess.show_image(img, paths=[paths[-1]])
+
+                            paths.append(draw_edge(i+1, longrange[i+1][1], img, current_color))
+                            # print(paths[-1])
+                            imgProcess.show_image(img, paths=[paths[-1]])
+
+                            for x, y, v in st:
+                                img[x][y] = v
+
+                        i = j
+                    i += 1
+        
+
+            found = True
+            while found == True:
+                found = False
+                path = []
+                sti = -1
+                stj = -1
+                # find 0
+                for i in range(0, n):
+                    for j in range(0, m):
+                        if img[i][j] == current_color:
+                            sti = i
+                            stj = j
+                            found = True
+                            break
+                    if sti != -1:
+                        break
+                
+                if sti == -1 and stj == -1:
+                    break
+
+                # print(sti, stj)
+                paths.append(draw_edge(sti, stj, img, current_color))
+                # print(paths[-1])
+                imgProcess.show_image(img, paths=[paths[-1]])
+
+            def shorten_path(path):
+                selected_path = [path[0]]
+                for i in range(len(path)):
+                    if abs(path[i][0] - selected_path[-1][0]) + abs(path[i][1] - selected_path[-1][1]) > 4:
+                        selected_path.append(path[i])
+                return selected_path[:]
+            result.append((number, copy.deepcopy([shorten_path(p) for p in paths if len(p) > 3])))
+            # imgProcess.show_image(img, paths=result[area_number])
+            # print(result[area_number])
+
+        (n, m) = img.shape
+        print(img)
+        result = [
             (1, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]),
             (2, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]]),
             (3, [[(0, 0), (0, m-1), (n-1, m-1), (n-1, 0), (0, 0)]])
@@ -689,7 +998,7 @@ class imgProcess:
                 temp = []  # [(starts in world frame, ends in world frame)]
                 for (x, y) in stroke:
                     # startWorld = cali.transform_to_3d(np.array([start[0], start[1]]))
-                    p = cali.transform_to_3d(np.array([x, y]))
+                    p = cali.transform_to_3d(np.array([x / 1.7, y / 1.7]))
                     temp.append(p)  # (np.array(2,), np.array(2))
                 tstore.append(temp[:])
             worldPoints.append((data[0], copy.deepcopy(tstore)))
@@ -706,7 +1015,7 @@ class imgProcess:
         standard_img = cali.calibrate()
         imgProcess.show_image(standard_img)
         # first, threshold the original image
-        thresh = imgProcess.thresh_naive(standard_img, 0, 210)
+        thresh = imgProcess.thresh_naive(standard_img, 0, 160)
 
         imgProcess.show_image(thresh)
         # then do the naive edge detection; also do area segmentation underlyingly
@@ -720,7 +1029,7 @@ class imgProcess:
 
         # transfer index of the matrix to the coordinate in the world frame
         worldPoints = imgProcess.pixel2World(cali, areaPoints)
-        print(worldPoints)
+        # print(worldPoints)
         return worldPoints
         
 if __name__ == '__main__':

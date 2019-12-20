@@ -23,6 +23,7 @@ class ChouChou {
       this.position_z = null;
       this.edge_grad = null;
       this.status_type = null;
+      this.pen_type = null;
     }
     else {
       if (initObj.hasOwnProperty('position_x')) {
@@ -55,6 +56,12 @@ class ChouChou {
       else {
         this.status_type = '';
       }
+      if (initObj.hasOwnProperty('pen_type')) {
+        this.pen_type = initObj.pen_type
+      }
+      else {
+        this.pen_type = 0;
+      }
     }
   }
 
@@ -70,6 +77,8 @@ class ChouChou {
     bufferOffset = _serializer.float64(obj.edge_grad, buffer, bufferOffset);
     // Serialize message field [status_type]
     bufferOffset = _serializer.string(obj.status_type, buffer, bufferOffset);
+    // Serialize message field [pen_type]
+    bufferOffset = _serializer.int64(obj.pen_type, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -87,13 +96,15 @@ class ChouChou {
     data.edge_grad = _deserializer.float64(buffer, bufferOffset);
     // Deserialize message field [status_type]
     data.status_type = _deserializer.string(buffer, bufferOffset);
+    // Deserialize message field [pen_type]
+    data.pen_type = _deserializer.int64(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
     let length = 0;
     length += object.status_type.length;
-    return length + 36;
+    return length + 44;
   }
 
   static datatype() {
@@ -103,7 +114,7 @@ class ChouChou {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '6671b4e310025559f107ccde9e7e7adf';
+    return 'f61e71bd64cbb15ad5eb3947b804986d';
   }
 
   static messageDefinition() {
@@ -114,6 +125,8 @@ class ChouChou {
     float64 position_z
     float64 edge_grad
     string status_type
+    int64 pen_type
+    
     `;
   }
 
@@ -156,6 +169,13 @@ class ChouChou {
     }
     else {
       resolved.status_type = ''
+    }
+
+    if (msg.pen_type !== undefined) {
+      resolved.pen_type = msg.pen_type;
+    }
+    else {
+      resolved.pen_type = 0
     }
 
     return resolved;

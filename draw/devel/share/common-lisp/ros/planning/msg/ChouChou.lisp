@@ -31,7 +31,12 @@
     :reader status_type
     :initarg :status_type
     :type cl:string
-    :initform ""))
+    :initform "")
+   (pen_type
+    :reader pen_type
+    :initarg :pen_type
+    :type cl:integer
+    :initform 0))
 )
 
 (cl:defclass ChouChou (<ChouChou>)
@@ -66,6 +71,11 @@
 (cl:defmethod status_type-val ((m <ChouChou>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader planning-msg:status_type-val is deprecated.  Use planning-msg:status_type instead.")
   (status_type m))
+
+(cl:ensure-generic-function 'pen_type-val :lambda-list '(m))
+(cl:defmethod pen_type-val ((m <ChouChou>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader planning-msg:pen_type-val is deprecated.  Use planning-msg:pen_type instead.")
+  (pen_type m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <ChouChou>) ostream)
   "Serializes a message object of type '<ChouChou>"
   (cl:let ((bits (roslisp-utils:encode-double-float-bits (cl:slot-value msg 'position_x))))
@@ -110,6 +120,16 @@
     (cl:write-byte (cl:ldb (cl:byte 8 16) __ros_str_len) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 24) __ros_str_len) ostream))
   (cl:map cl:nil #'(cl:lambda (c) (cl:write-byte (cl:char-code c) ostream)) (cl:slot-value msg 'status_type))
+  (cl:let* ((signed (cl:slot-value msg 'pen_type)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 18446744073709551616) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 32) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 40) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 48) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 56) unsigned) ostream)
+    )
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <ChouChou>) istream)
   "Deserializes a message object of type '<ChouChou>"
@@ -161,6 +181,16 @@
       (cl:setf (cl:slot-value msg 'status_type) (cl:make-string __ros_str_len))
       (cl:dotimes (__ros_str_idx __ros_str_len msg)
         (cl:setf (cl:char (cl:slot-value msg 'status_type) __ros_str_idx) (cl:code-char (cl:read-byte istream)))))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 32) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 40) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 48) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 56) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'pen_type) (cl:if (cl:< unsigned 9223372036854775808) unsigned (cl:- unsigned 18446744073709551616))))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<ChouChou>)))
@@ -171,16 +201,16 @@
   "planning/ChouChou")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<ChouChou>)))
   "Returns md5sum for a message object of type '<ChouChou>"
-  "6671b4e310025559f107ccde9e7e7adf")
+  "f61e71bd64cbb15ad5eb3947b804986d")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'ChouChou)))
   "Returns md5sum for a message object of type 'ChouChou"
-  "6671b4e310025559f107ccde9e7e7adf")
+  "f61e71bd64cbb15ad5eb3947b804986d")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<ChouChou>)))
   "Returns full string definition for message of type '<ChouChou>"
-  (cl:format cl:nil "float64 position_x~%float64 position_y~%float64 position_z~%float64 edge_grad~%string status_type~%~%"))
+  (cl:format cl:nil "float64 position_x~%float64 position_y~%float64 position_z~%float64 edge_grad~%string status_type~%int64 pen_type~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'ChouChou)))
   "Returns full string definition for message of type 'ChouChou"
-  (cl:format cl:nil "float64 position_x~%float64 position_y~%float64 position_z~%float64 edge_grad~%string status_type~%~%"))
+  (cl:format cl:nil "float64 position_x~%float64 position_y~%float64 position_z~%float64 edge_grad~%string status_type~%int64 pen_type~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <ChouChou>))
   (cl:+ 0
      8
@@ -188,6 +218,7 @@
      8
      8
      4 (cl:length (cl:slot-value msg 'status_type))
+     8
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <ChouChou>))
   "Converts a ROS message object to a list"
@@ -197,4 +228,5 @@
     (cl:cons ':position_z (position_z msg))
     (cl:cons ':edge_grad (edge_grad msg))
     (cl:cons ':status_type (status_type msg))
+    (cl:cons ':pen_type (pen_type msg))
 ))

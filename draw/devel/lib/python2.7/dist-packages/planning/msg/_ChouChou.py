@@ -7,16 +7,18 @@ import struct
 
 
 class ChouChou(genpy.Message):
-  _md5sum = "6671b4e310025559f107ccde9e7e7adf"
+  _md5sum = "f61e71bd64cbb15ad5eb3947b804986d"
   _type = "planning/ChouChou"
   _has_header = False #flag to mark the presence of a Header object
   _full_text = """float64 position_x
 float64 position_y
 float64 position_z
 float64 edge_grad
-string status_type"""
-  __slots__ = ['position_x','position_y','position_z','edge_grad','status_type']
-  _slot_types = ['float64','float64','float64','float64','string']
+string status_type
+int64 pen_type
+"""
+  __slots__ = ['position_x','position_y','position_z','edge_grad','status_type','pen_type']
+  _slot_types = ['float64','float64','float64','float64','string','int64']
 
   def __init__(self, *args, **kwds):
     """
@@ -26,7 +28,7 @@ string status_type"""
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       position_x,position_y,position_z,edge_grad,status_type
+       position_x,position_y,position_z,edge_grad,status_type,pen_type
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -45,12 +47,15 @@ string status_type"""
         self.edge_grad = 0.
       if self.status_type is None:
         self.status_type = ''
+      if self.pen_type is None:
+        self.pen_type = 0
     else:
       self.position_x = 0.
       self.position_y = 0.
       self.position_z = 0.
       self.edge_grad = 0.
       self.status_type = ''
+      self.pen_type = 0
 
   def _get_types(self):
     """
@@ -72,6 +77,7 @@ string status_type"""
         _x = _x.encode('utf-8')
         length = len(_x)
       buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(_get_struct_q().pack(self.pen_type))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -95,6 +101,9 @@ string status_type"""
         self.status_type = str[start:end].decode('utf-8')
       else:
         self.status_type = str[start:end]
+      start = end
+      end += 8
+      (self.pen_type,) = _get_struct_q().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e) #most likely buffer underfill
@@ -115,6 +124,7 @@ string status_type"""
         _x = _x.encode('utf-8')
         length = len(_x)
       buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(_get_struct_q().pack(self.pen_type))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -139,6 +149,9 @@ string status_type"""
         self.status_type = str[start:end].decode('utf-8')
       else:
         self.status_type = str[start:end]
+      start = end
+      end += 8
+      (self.pen_type,) = _get_struct_q().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e) #most likely buffer underfill
@@ -147,6 +160,12 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
+_struct_q = None
+def _get_struct_q():
+    global _struct_q
+    if _struct_q is None:
+        _struct_q = struct.Struct("<q")
+    return _struct_q
 _struct_4d = None
 def _get_struct_4d():
     global _struct_4d

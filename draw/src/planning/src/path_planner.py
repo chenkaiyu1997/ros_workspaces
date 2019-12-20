@@ -211,7 +211,7 @@ class PathPlanner(object):
 		"""
 		
 		print('Closing...')
-		robot_gripper.Gripper('right')
+		right_gripper = robot_gripper.Gripper('right')	
 		right_gripper.close()
 
 		

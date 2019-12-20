@@ -53,13 +53,14 @@ class calibration():
         # clicked = plt.ginput(4, timeout=0, show_clicks=True)
         # clicked = [tuple([round(x) for x in tup]) for tup in clicked]
         # print(clicked)
-        clicked = [(415.0, 482.0), (632.0, 472.0), (808.0, 463.0), (850.0, 547.0), (902.0, 639.0), (671.0, 655.0), (374.0, 675.0), (395.0, 562.0)]
+        clicked = [(377.0, 355.0), (796.0, 369.0), (907.0, 553.0), (342.0, 555.0)]
+        # clicked = [(415.0, 482.0), (632.0, 472.0), (808.0, 463.0), (850.0, 547.0), (902.0, 639.0), (671.0, 655.0), (374.0, 675.0), (395.0, 562.0)]
         # objpoints = np.zeros((4,1,3))
         
         src = np.float32([clicked[0],
+                  clicked[1],
                   clicked[2],
-                  clicked[4],
-                  clicked[6]])
+                  clicked[3]])
 
 
         dst = np.float32([(0, 0),
@@ -69,28 +70,33 @@ class calibration():
         transformed = self.warp(src, dst, self.img)
         cv2.imwrite('result.jpg', transformed)
 
-        # std_clicked = []
-        # for click in clicked:
-        #     cur_click = self.M.dot([[click[0]], [click[1]], [1]])
-        #     cur_click = (cur_click / cur_click[-1])[:2]
-        #     print('lolllll', cur_click, cur_click.shape, cur_click[0,0], cur_click[0][0])
-        #     cur_y = cur_click[0][0]
-        #     cur_x = cur_click[1][0]
-        #     if cur_x > 344:
-        #         cur_x = 344
-        #     if cur_x < 0:
-        #         cur_x = 0
-        #     if cur_y > 499:
-        #         cur_y = 499
-        #     if cur_y < 0:
-        #         cur_y = 0
-        #     std_clicked.append([cur_y,cur_x])
-        std_clicked = clicked
+        std_clicked = []
+        for click in clicked:
+            cur_click = self.M.dot([[click[0]], [click[1]], [1]])
+            cur_click = (cur_click / cur_click[-1])[:2]
+            print('lolllll', cur_click, cur_click.shape, cur_click[0,0], cur_click[0][0])
+            cur_y = cur_click[0][0]
+            cur_x = cur_click[1][0]
+            if cur_x > 344:
+                cur_x = 344
+            if cur_x < 0:
+                cur_x = 0
+            if cur_y > 499:
+                cur_y = 499
+            if cur_y < 0:
+                cur_y = 0
+            std_clicked.append([cur_y,cur_x])
+        # std_clicked = clicked
 
-        objpoints = np.float32([[0.214,-0.361,0],
-                            [0.222,-0.05,0],
-                            [0.228,0.22,0],
-                            [0.48,0.179,0]])
+        # objpoints = np.float32([[0.554,-0.240,0],
+        #                     [0.549,0.319,0],
+        #                     [0.944,0.316,0],
+        #                     [0.952,-0.235,0]]) #alan
+
+        objpoints = np.float32([[0.465,-0.262,0],
+                            [0.486,0.279,0],
+                            [0.863,0.259,0],
+                            [0.842,-0.300,0]])
 
         imgpoints = np.float32([[std_clicked[0][0],std_clicked[0][1]],
                             [std_clicked[1][0],std_clicked[1][1]],
@@ -116,11 +122,11 @@ class calibration():
     def transform_to_3d(self, pt):
         # swap x, y
         pt[0], pt[1] = pt[1], pt[0]
-        pt = np.concatenate((pt.T.reshape((2,1)), np.array([[1]])), axis=0)
-        inv_M = np.linalg.inv(self.M)
-        gen_pt = inv_M.dot(pt)
-        # gen_pt = pt
-        gen_pt = (gen_pt / gen_pt[-1])[:2]
+        # pt = np.concatenate((pt.T.reshape((2,1)), np.array([[1]])), axis=0)
+        # inv_M = np.linalg.inv(self.M)
+        # gen_pt = inv_M.dot(pt)
+        gen_pt = pt
+        # gen_pt = (gen_pt / gen_pt[-1])[:2]
 
         A = np.array([[self.transform_matrix[0][0], self.transform_matrix[0][1], -gen_pt[0]],[self.transform_matrix[1][0], self.transform_matrix[1][1], -gen_pt[1]], [self.transform_matrix[2][0], self.transform_matrix[2][1], -1]])
         
@@ -130,7 +136,7 @@ class calibration():
 
         world_pos = inv_A.dot(b)
         world_pos = world_pos[:2]
-        print('pt: ', pt, 'gen_pt is: ', gen_pt, 'world_pos is: ', world_pos)
+        # print('pt: ', pt, 'gen_pt is: ', gen_pt, 'world_pos is: ', world_pos)
         return world_pos
         
 
